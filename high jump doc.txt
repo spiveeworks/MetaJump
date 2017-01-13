@@ -1,0 +1,25 @@
+
+pull = stack.append(stack.pop(-x))
+del = stack.pop(-x)
+dup = stack.append(stack[-x])
+ldup = dup|x>15
+
+append = stack.append(x)
+op+ = stack.append(stack.pop() + stack.pop())
+ etc...
+inc or dec = stack[-x] += 1 or stack[-x] -= 1
+
+code = code.append(stack[-x]), offset = len(code)
+ pcode = code.append(stack.pop(-x)), offset = len(code)
+icode = code.insert(offset, stack[-x])
+ ipcode = code.insert(offset, stack.pop(-x))
+ccode = code.append(x), offset = len(code)
+iccode = code.insert(offset, x)
+
+call = call.append(stack.pop())
+sappend = stack.append(call[-1])
+cappend = stack.append(new func(code)), code = []
+
+jmp = fptr += x
+    unless lz x gz x ez
+
