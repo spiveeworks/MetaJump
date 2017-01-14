@@ -1,12 +1,63 @@
 
 
+
 class high_jump_machine:
+    
+    @staticmethod
+    def repeat_lo(base):
+        def decorated(self, lo):
+            if lo == 0:
+                lo = self.func[self.fptr]
+                self.fptr += 1
+            base(self, lo)
+        return decorated
+            
+    @staticmethod
+    def get_literals(base):
+        def decorated(self, lo):
+            literals = self.func[self.fptr:self.fptr + lo]
+            self.fptr += lo
+            base(self, literals)
+        return decorated
+    
     def __init__(self, main):
-        self.top = main;
+        self.func = main;
         self.fptr = 0;
         self.stack = [];
         self.call = [];
-        self.code = [];
+        self.reg = [];
+        
+    def get(self, lo):
+        return self.stack[len(self.stack) - lo]
+        
+    def pop_get(self, lo):
+        return self.stack.pop(len(self.stack) - lo)
+        
+    def jump(self, lo):
+        byte = self.stack[-1]
+        if lo & 8:
+            self.stack.pop()
+        if lo & 7 == 7:
+            jump = True
+        elif byte == 0:
+            jump = lo & 1
+        elif byte  > 0:
+            jump = lo & 2
+        elif byte <  0:
+            jump = lo & 4
+        if jump:
+            self.fptr += self.stack[self.fptr]
+    
+    @repeat_lo
+    @get_literals
+    def cpush(self, literals):
+        for byte in literals:
+            self.stack.append(byte)
+    
+    def push(self, lo):
+        self.stack.append(self.get(lo))
+        
+    def self.cpush(self,)
         
     def __iter__(self):
         hi_ops = [
@@ -20,23 +71,26 @@ class high_jump_machine:
             
             self.math       # 6 arithmetic
             
-            self.code       # 7 add 
-            self.icode      # 8
-            self.ccode      # 9
-            self.iccode     # A
-            self.pcode      # B
-            self.ipcode     # C
-            self.call       # D
-            self.functional # E
+            self.call       # 7 call a function, after which resume execution
+            self.ccode      # A add bytes to the code register
+            self.iccode     # B insert bytes after the last normal code or ccode execution
+            self.code       # 8 add a byte from the stack to the code register
+            self.icode      # 9 insert a byte from the stack after the last normal code or ccode execution
+            self.functional # C
             
+            self.input      # D
+            self.output     # E
         ]
-        while self.call or self.fptr < len(self.top):
-            while self.fptr < len(self.top):
-                byte = self.code[self.fptr]
+        while self.call or self.fptr < len(self.func):
+            while self.fptr < len(self.func):
+                byte = self.func[self.fptr]
                 hi = byte >> 4
                 lo = byte & 0x0F
+                self.fptr += 1
+                hi_ops[hi](lo)
                 
-            self.top, self.fptr = self.call.pop()
+                
+            self.func, self.fptr = self.call.pop()
             self.fptr += 1
         
 
