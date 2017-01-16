@@ -11,4 +11,5 @@ def iterate_and_cast_back(func):
             return output_str if output_str.isprintable() else output_list
         else:
             return input_type(output)
+    return run_machine
 

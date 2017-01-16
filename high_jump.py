@@ -1,24 +1,31 @@
 import vm
 
 
+def repeat_lo(base):
+    def decorated(self, lo):
+        if lo == 0:
+            lo = self.get_op()
+        base(self, lo)
+    return decorated
+
+
+def get_literals(base):
+    def decorated(self, lo):
+        literals = self.func[self.fptr:self.fptr + lo]
+        self.fptr += lo
+        base(self, literals)
+    return decorated
+
+
+def call_result(func):
+    def decorated(self, *args, **kwargs):
+        self.call_stack.append((self.func, self.fptr))
+        self.func = func(self, *args, **kwargs)
+        self.fptr = 0
+    return decorated
+
+
 class byte_machine:
-
-    @staticmethod
-    def repeat_lo(base):
-        def decorated(self, lo):
-            if lo == 0:
-                lo = self.get_op()
-            base(self, lo)
-        return decorated
-
-    @staticmethod
-    def get_literals(base):
-        def decorated(self, lo):
-            literals = self.func[self.fptr:self.fptr + lo]
-            self.fptr += lo
-            base(self, literals)
-        return decorated
-
     def __init__(self, main, input=()):
         self.func = main;
         self.fptr = 0;
@@ -30,7 +37,7 @@ class byte_machine:
 
     def get(self, lo):
         return self.stack[len(self.stack) - lo]
-    
+
     def get_op(self):
         ret = self.func[self.fptr]
         self.fptr += 1
@@ -114,18 +121,11 @@ class byte_machine:
             elif lo == 15:
                 self.stack.append(1 if a else 0)
 
-    @staticmethod
-    def call_result(func):
-        def decorated(self, *args, **kwargs):
-            self.call_stack.append((self.func, self.fptr))
-            self.func = func(self, *args, **kwargs)
-            self.fptr = 0
-        return decorated
 
     @call_result
     def call(self, lo):
         return self.get(lo)
-        
+
     def code(self, options):
         def do_code(byte):
             self.reg.extend(self.rreg[::-1])
@@ -146,31 +146,31 @@ class byte_machine:
     @call_result
     def pcall(self):
         return self.stack.pop()
-    
+
     @call_result
     def ccall(self):
         return self.get_op()
-    
-    
+
+
     def ret(self):
         self.func, self.fptr = self.call_stack.pop()
-    
+
     def flush(self):
         self.reg.extend(self.rreg[::-1])
         self.stack.append(self.reg)
         self.reg = []
         self.rreg = []
-    
+
     def push_this(self):
         self.stack.append(self.func)
-    
+
     def lo_op(self):
         lo_ops = [
             self.ret,       # 0
-            
+
             self.pcall,     # 1
             self.ccall,     # 2
-            
+
             self.flush,     # 3
             self.push_this, # 4
         ]
@@ -182,11 +182,11 @@ class byte_machine:
     def get_input(self, lo):
         for i in range(lo):
             self.stack.append(self.input.__next__())
-    
+
     @repeat_lo
     def stack_output(self, lo):
         return [self.stack.pop() for i in range(lo)]
-    
+
     @repeat_lo
     @get_literals
     def literal_output(self, literals):
@@ -230,5 +230,5 @@ class byte_machine:
 
 
 @vm.iterate_and_cast_back
-def do_hj(input, main)  # don't laugh
+def do_hj(input, main):  # don't laugh
     return byte_machine(input, main)
