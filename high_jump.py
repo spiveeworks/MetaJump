@@ -1,7 +1,7 @@
+import vm
 
 
-
-class machine8:
+class byte_machine:
 
     @staticmethod
     def repeat_lo(base):
@@ -229,4 +229,6 @@ class machine8:
             self.ret()
 
 
-
+@vm.iterate_and_cast_back
+def do_hj(input, main)  # don't laugh
+    return byte_machine(input, main)
