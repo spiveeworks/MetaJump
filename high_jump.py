@@ -30,7 +30,7 @@ class high_jump_machine:
     def get(self, lo):
         return self.stack[len(self.stack) - lo]
         
-    def pop_get(self, lo):
+    def pop(self, lo):
         return self.stack.pop(len(self.stack) - lo)
         
     def jump(self, lo):
@@ -56,8 +56,19 @@ class high_jump_machine:
     
     def push(self, lo):
         self.stack.append(self.get(lo))
-        
-    def self.cpush(self,)
+    
+    def pull(self, lo):
+        if lo:
+            self.stack.append(self.pop(lo))
+        else:
+            lo = self.func[self.fptr]
+            self.func += 1
+            self.push(lo)  # special case to turn a no-op into lpush
+    
+    def bury(self, lo):
+        lo = lo or 16  # turn no-op into useful special tool for accessing 16th element
+        el = self.stack.pop()
+        self.stack.insert(len(self.stack) - lo, el)
         
     def __iter__(self):
         hi_ops = [
