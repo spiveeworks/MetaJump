@@ -252,5 +252,5 @@ class byte_machine:
 
 
 @vm.iterate_and_cast_back
-def do_hj(input, main):  # don't laugh
+def do_mj(input, main):
     return byte_machine(main, input)
