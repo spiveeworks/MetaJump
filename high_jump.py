@@ -5,7 +5,7 @@ def repeat_lo(base):
     def decorated(self, lo):
         if lo == 0:
             lo = self.get_op()
-        base(self, lo)
+        return base(self, lo)
     return decorated
 
 
@@ -13,7 +13,7 @@ def get_literals(base):
     def decorated(self, lo):
         literals = self.func[self.fptr:self.fptr + lo]
         self.fptr += lo
-        base(self, literals)
+        return base(self, literals)
     return decorated
 
 
@@ -24,19 +24,23 @@ def call_result(func):
         self.fptr = 0
     return decorated
 
+def call_result_with_offset(func):
+    def decorated(self, *args, **kwargs):
+        self.call_stack.append((self.func, self.fptr))
+        self.func, self.fptr = func(self, *args, **kwargs)
+    return decorated
+
 
 class byte_machine:
     def __init__(self, main, input=()):
-        self.func = main;
-        self.fptr = 0;
         self.stack = [];
-        self.call_stack = [];
+        self.call_stack = [(main, 0)];
         self.reg = [];
         self.rreg = []
         self.input = iter(input)
 
     def get(self, lo):
-        return self.stack[len(self.stack) - lo]
+        return self.stack[len(self.stack) - lo - 1]
 
     def get_op(self):
         ret = self.func[self.fptr]
@@ -44,22 +48,24 @@ class byte_machine:
         return ret
 
     def pop(self, lo):
-        return self.stack.pop(len(self.stack) - lo)
+        return self.stack.pop(len(self.stack) - lo - 1)
 
     def jump(self, lo):
         byte = self.stack[-1]
         if lo & 8:
             self.stack.pop()
-        if lo & 7 == 7:
-            jump = True
-        elif byte == 0:
-            jump = lo & 1
-        elif byte  > 0:
-            jump = lo & 2
-        elif byte <  0:
-            jump = lo & 4
-        if jump:
-            self.fptr += self.stack[self.fptr] - 1
+        if lo & 7:
+            offset = self.get_op()
+            if lo & 7 == 7:
+                jump = True
+            elif byte == 0:
+                jump = lo & 1
+            elif byte  > 0:
+                jump = lo & 2
+            elif byte <  0:
+                jump = lo & 4
+            if jump:
+                self.fptr += offset
 
     @repeat_lo
     @get_literals
@@ -83,7 +89,7 @@ class byte_machine:
         self.stack.insert(len(self.stack) - lo, el)
 
     def math(self, lo):
-        if lo < 9:
+        if lo < 11:
             a, b = self.stack.pop(), self.stack.pop()
             if lo == 0:
                 self.stack.append(a + b)
@@ -160,9 +166,21 @@ class byte_machine:
         self.stack.append(self.reg)
         self.reg = []
         self.rreg = []
+        
+    def rflush(self):
+        self.reg.extend(self.rreg[::-1])
+        self.rreg = []
 
     def push_this(self):
         self.stack.append(self.func)
+    
+    @call_result
+    def call_this(self):
+        return self.func
+    
+    @call_result_with_offset
+    def call_this_from(self):
+        return self.func, self.get_op()
 
     def lo_op(self):
         lo_ops = [
@@ -172,7 +190,11 @@ class byte_machine:
             self.ccall,     # 2
 
             self.flush,     # 3
-            self.push_this, # 4
+            self.rflush,    # 4
+            self.push_this, # 5
+            
+            self.call_this, # 6
+            self.call_this_from, # 7
         ]
         def do_lo_op(lo):
             lo_ops[lo]()
@@ -213,7 +235,8 @@ class byte_machine:
 
             self.get_input, # D pushes input onto the stack
         ]
-        while self.call_stack or self.fptr < len(self.func):
+        while self.call_stack:
+            self.ret()
             while self.fptr < len(self.func):
                 byte = self.get_op()
                 hi = byte >> 4
@@ -226,9 +249,8 @@ class byte_machine:
                         yield byte
                 else:
                     hi_ops[hi](lo)
-            self.ret()
 
 
 @vm.iterate_and_cast_back
 def do_hj(input, main):  # don't laugh
-    return byte_machine(input, main)
+    return byte_machine(main, input)
