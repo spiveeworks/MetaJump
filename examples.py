@@ -46,7 +46,7 @@ class opcode:
     RFLUSH = 0xC4
     THIS = 0xC5
     TCALL = 0xC6
-    OTCALL = 0xC57
+    OTCALL = 0xC7
 
     IPT = 0xD0
     COPT = 0xE0
@@ -62,5 +62,3 @@ def tuple(n): return [opcode.CCODE + 2, opcode.CPUSH, n, opcode.RCODE, n, opcode
   #     def inner():
   #         return (a1, a2, a3... an)
   #     return inner
-
-
