@@ -124,7 +124,9 @@ For completion an additional 8 jump operations can be found by implementing the 
  * JMP or NOP but still pop the top element (mostly redundant, but an interesting opportunity for small optimizations)
  * JEZ, JGZ, JLZ, JGEZ, JLEZ, JNZ, but without popping the top element when it is compared to zero (can be achieved by just running push 0 first, but also an interesting opportunity for optimization)
 
-Additionally a special operation should exist which pops the call stack. (return)  
+A special operation could exist to change the execution offset by a number popped from the data stack.
+
+Additionally another special operation should exist which pops the call stack. (return)  
 This operation is implicit at the end of every function, so in effect explicit return operations are a JMP to the end of the function.
 
 #### Call
