@@ -31,7 +31,7 @@ The stack needs to be able to hold function references as well, which typically 
 
 This is a stack containing the functions being executed, and their current execution offset.
 
-The top function is also called "this" and the top execution offset is also called "fptr" (read: eff-pointer, function pointer)
+The top function is also called "this" and the top execution offset is also called `fptr` (read: eff-pointer, function pointer)
 
 The machine repeatedly executes operations from the top function, until the execution offset exceeds the functions actual contents, at which point the stack is popped.
 
@@ -108,26 +108,26 @@ A useful set of functionality would be the following:
 #### Jump
 
 The four basic jump operations are:
- * JMP; change fptr by the offset specified
- * JEZ; pop the top element from the stack and then perform a JMP if that element was zero
- * JGZ; similar but for greater than zero
- * JLZ; similar but for less than zero
+ * `JMP`; change fptr by the offset specified
+ * `JEZ`; pop the top element from the stack and then perform a JMP if that element was zero
+ * `JGZ`; similar but for greater than zero
+ * `JLZ`; similar but for less than zero
 
 4 compound jump operations could also exist:
  * compound comparisons
-   * JGEZ for greater than or equal to zero
-   * JLEZ for less than or equal to zero
-   * JNZ  for not zero
-   * NOP  to never jump
+   * `JGEZ` for greater than or equal to zero
+   * `JLEZ` for less than or equal to zero
+   * `JNZ`  for not zero
+   * `NOP`  to never jump
 
 For completion an additional 8 jump operations can be found by implementing the above with unconventional pop semantics:
- * JMP or NOP but still pop the top element (mostly redundant, but an interesting opportunity for small optimizations)
- * JEZ, JGZ, JLZ, JGEZ, JLEZ, JNZ, but without popping the top element when it is compared to zero (can be achieved by just running push 0 first, but also an interesting opportunity for optimization)
+ * `JMP` or `NOP` but still pop the top element (mostly redundant, but an interesting opportunity for small optimizations)
+ * `JEZ`, `JGZ`, `JLZ`, `JGEZ`, `JLEZ`, `JNZ`, but without popping the top element when it is compared to zero (can be achieved by just running push 0 first, but also an interesting opportunity for optimization)
 
 A special operation could exist to change the execution offset by a number popped from the data stack.
 
 Additionally another special operation should exist which pops the call stack. (return)  
-This operation is implicit at the end of every function, so in effect explicit return operations are a JMP to the end of the function.
+This operation is implicit at the end of every function, so in effect explicit return operations are a `JMP` to the end of the function.
 
 #### Call
 
