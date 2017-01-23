@@ -1,77 +1,91 @@
 
-Basic Definitions
-=================
+MetaJump Idiom
+==============
 
-Given this language's reliance on functions over classes, some terminology is lifted from Haskell and functional languages.
+This document is a step by step breakdown of using MJ, but is intended to be used alongside the glossary.  
+Check terms in the glossary as they come up, the glossary is alphabetic, this guide is ordered by complexity.
 
-Arguments
----------
+This document will construct and use a system called MetaJump Modelling Language, (MJML) which is primarily an abstract way of representing these idiomata.
 
-Elements on the top of the stack that are potentially copied, or deleted, during the execution of a function, as well as elements higher on the stack than those.
+Generic and strictly typed objects
+==================================
 
-If long-pull operations occur then the function could have hundreds of arguments and always return most of them identically.
-
-Return Values
--------------
-
-After removing all arguments from the stack, the return values are the entries that are replaced, including ones that are unchanged.
-
-Capture
--------
-
-Arguments that are always returned identically could also be described as captured values, instead of being arguments and return values.
-
-These are alternative notations, and make no mistake, this will cause confusion.
-
-Pure Function
--------------
-
-A function that does not use any IO operations, under any circumstances, will be pure in the usual sense, using the above definition of arguments.
-
-Data Structures
-===============
-
-MetaJump is capable of sophisticated data structures, however all of these structures are implemented as functions!
-
-Tuple
+Words
 -----
 
-In MetaJump a tuple is any function that takes no arguments, (doesn't read the stack below entries it added) and does not use any IO operations.
+In MJ primitve data takes the form of a word.  
 
-MetaJump Modelling Notation
-===========================
+In MJML the following are representations of a single word:
+ * A period '`.`' represents a numeric word, an integer
+ * An asterisk '`*`' represents a function, (in theory this is a word that acts as a reference to a list of operations)
+ * A question mark '`?`' represents either of the above, and therefore can't be used as either.
 
-Basics: words, functions, strictly typed pure functions
--------------------------------------------------------
+Sequences of Words
+------------------
 
-First of all a word is represented by a period. `.`  
-Then a generic function reference is represented by an asterisk. `*`  
+Sections of the stack can be represented as a comma separated list of data structures.  
+The elements are presented in order from the lowest in the stack to the highest.  
 
-A pure function with modellable arguments and return values is specified by its arguments in parentheses followed by its return values in parentheses, from the bottom of the stack to the top.
+Commas can be removed on either side of any of the symbols mentioned so far, but as structures get more complicated, or get referred to by names, they will require commas.
 
-For example a function that applies the plus operation would have the type `(..)(.)`
+Pure, Modellable
+----------------
 
-If a pure function takes no arguments, i.e. the function is a tuple then the first empty pair of parentheses can be excluded.
-A triple of words would be represented by `(...)` which is of course equivalent to `()(...)`
+A function is pure if it does not use any IO operations under any circumstances.  
+A function is modellable if there is some MDML way of representing the data that it will read/modify in the stack, as well as the data that will be left/replaced after execution.
 
-Functions of course can be passed or returned, so nesting can occur; e.g.  
-`binary_curry: ( (..)(.) )( (.)( (.)(.) ))`  
-This example will be repeated later in a notation with more clarity.
+Under these circumstances the function's type can be specified by how it will interact with the stack;  
+Each of the following sequences of words will be modelled as a word sequence enclosed by parentheses:
+ * Words that it will read but will always remain untouched at the end of execution (the function's 'capture')
+ * Words that it will modify, or remove from the stack (the function's 'arguments')
+ * Words that would be placed if the modified words were thought of as removed (the function's 'return')
 
-Terms in an argument list are technically comma separated, but commas before or after a period or an asterisk are ommited.
+So for example if a function took two words, let's call them A, and B, and then added A to B without removing A, this would be represented as:
+`(.)(.)(.)` because A will be left, B will be removed, and A + B will be replaced
 
-Named types, recursive types
-----------------------------
+Whereas a function that did remove A would be modelled as such:
+`()(..)(.)`
 
-Types can be named for clarity.  
-For example, the curry definition above could be clarified as follows:  
+Empty sequences can be omitted from left to right, so the latter example could also be presented as `(..)(.)`  
+
+A tuple is a function that does not take any arguments, and does not read from the stack at all, and will be represented as a single sequence wrapped in parentheses.  
+A triple, for example, is a function that does not modify the stack other than to add three elements to it, and is modelled as `(...)` which is equivalent to both `()()(...)` and `()(...)`
+
+A function that takes no arguments, and returns no values, is represented as `()`, which cannot be ommited.
+
+Names
+=====
+
+Type Aliases
+------------
+
+Types can be aliased for clarity.
+For example, the following annotation of a curry function:  
 `binary: (..)(.)`  
 `unary: (.)(.)`  
 `curried_binary: (.)(unary)`  
 `binary_curry: (binary)(curried_binary)`  
+could also be represented directly as ((..)(.))((.)((.)(.)))
 
-This also opens up the possibility of recursive type definitions, including the basic linked list:  
-`stack: (stack.)`  
-i.e. a stack is a function that returns another stack, as well as a word.
+This also opens up the possibility of recursive type definitions, such as the following:  
+`iterator: (iterator.)`  
+i.e. an iterator in this case is a function that returns another iterator and an integer
+
+There are no restrictions on type recursion, but some types may be difficult to implement in any meaningful way.
+
+Generic Type
+------------
+
+Sometimes an unknown type needs to be consistent within a structure, but otherwise unknown.  
+For this names can be used without definition within a structure.
+
+For example, a function's code could read something like:
+  `rcode [0], rcode cpush, rcode [0], rcode cpush, pop [0], pop [0], flush`, 
+
+This takes two arguments and constructs a tuple/duple/pair, and would have type `(a, b)((a, b))`
+
+Algebraic Value
+---------------
+
 
 
