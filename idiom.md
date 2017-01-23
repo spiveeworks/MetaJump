@@ -7,8 +7,8 @@ Check terms in the glossary as they come up, the glossary is alphabetic, this gu
 
 This document will construct and use a system called MetaJump Modelling Language, (MJML) which is primarily an abstract way of representing these idiomata.
 
-Generic and strictly typed objects
-==================================
+Simple and Strictly Typed Objects
+=================================
 
 Words
 -----
@@ -86,6 +86,11 @@ This takes two arguments and constructs a tuple/duple/pair, and would have type 
 
 Algebraic Value
 ---------------
+
+Sometimes the data in a structure specifies information about other parts of that structure.  
+For this reason, values themselves can be named, for algebraic constructs in other parts of a structure.  
+When a name is used algebraically, it must be an algebraic value, and so the type must be an integer.  
+The ways in which a name is used 'algebraically' will come up below.  
 
 
 
