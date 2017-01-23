@@ -151,3 +151,10 @@ The reverse buffer is flushed before either code, ccode, or flush are executed.
 The reverse buffer can also be manually flushed (rflush)
 
 Finally a special operation called "this" will take the top function on the call stack and append it to the data stack; this is used for recursive systems that span multiple functions, as well as special data structure implementations such as recursive tuples.
+
+### I/O
+
+Words can be taken from input, and sent to output, using three operations:
+ * input; takes a specified number of words from input, and pushes them to the stack
+ * output; takes words from the function body and sends them to the output
+ * pop-output; pops the specified word from the stack and sends it to output
