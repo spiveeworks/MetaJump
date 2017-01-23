@@ -31,7 +31,7 @@ The stack needs to be able to hold function references as well, which typically 
 
 This is a stack containing the functions being executed, and their current execution offset.
 
-The top function is also called "this" and the top execution offset is also called `fptr` (read: eff-pointer, function pointer)
+The top function is also called `this` and the top execution offset is also called `fptr` (read: eff-pointer, function pointer)
 
 The machine repeatedly executes operations from the top function, until the execution offset exceeds the functions actual contents, at which point the stack is popped.
 
