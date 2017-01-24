@@ -144,13 +144,30 @@ The only crucial call operation pushes something from the data stack onto the ca
 Words can be copied either from the current function code, or from the stack, and to either the code buffer, or the reverse buffer.
 (code, ccode, rcode, rccode)
 
-The buffer can also be flushed into a newly allocated function on the heap.  
-A reference to this function will be pushed to the top of the stack.
+Considering the places that data can be copied from and to when metaprogramming, there are four possible metaprogramming operations:  
+ * code; copy from the stack to the code buffer
+ * rcode; copy from the stack to the reverse buffer
+ * ccode; copy from the current function code to the code buffer
+ * rccode; copy from the current function code to the code buffer
+Note that when code is copied from the function to either buffer it is not executed.
 
-The reverse buffer is flushed before either code, ccode, or flush are executed.  
-The reverse buffer can also be manually flushed (rflush)
+Then once code is in either buffer, a flush operation will empty them, and create a new function reference on the heap.  
 
-Finally a special operation called "this" will take the top function on the call stack and append it to the data stack; this is used for recursive systems that span multiple functions, as well as special data structure implementations such as recursive tuples.
+The reverse buffer is flushed whenever any of the following are executed:  
+ * code
+ * ccode
+ * flush
+ * rflush
+
+Where rflush is a special operation that does nothing but flush the reverse buffer.  
+When the reverse buffer is flushed, it is reverse and added to the end of the code buffer; use this to work around the LIFO nature of the data stack.
+
+### This
+
+A single, special operation exists, called "this".  
+
+It takes the top function on the call stack and appends it to the data stack;  
+This is used for recursive systems that span multiple functions, as well as special data structure implementations such as recursive tuples.
 
 ### I/O
 
