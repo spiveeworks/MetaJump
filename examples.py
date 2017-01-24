@@ -52,13 +52,34 @@ class opcode:
     COPT = 0xE0
     POPT = 0xF0
 
-HELLO_WORLD = [opcode.COPT + len("Hello, World!")] + [ord(x) for x in "Hello, World!"]
 
-GEN = [opcode.THIS, opcode.CPUSH + 1, 0]  # def gen(): return (gen, 0)
+class misc:
+    HELLO_WORLD = [opcode.COPT + len("Hello, World!")] + [ord(x) for x in "Hello, World!"]
 
-POP_TO_RREG = [opcode.RCODE, opcode.RCCODE + 1, opcode.CPUSH + 1]
-def tuple(n): return [opcode.CCODE + 2, opcode.CPUSH, n, opcode.RCODE, n, opcode.FLUSH]
+def tuple(n): return [opcode.CCODE + 2, opcode.CPUSH, n] + n * [opcode.RCODE + 0, opcode.POP + 0] + [opcode.FLUSH]  # metaspaghetti macaroni
+# tuple:n: ([.]:n)(([.]:n))
   # def n-tuple(a1, a2, a3... an):
   #     def inner():
   #         return (a1, a2, a3... an)
   #     return inner
+
+class sequence:
+    CONDENSE =  [ # (subseq:n, n)((subseq:n, n)) where subseq:n: [?]:n
+        opcode.CCODE + 1, 
+            opcode.CPUSH, 
+        opcode.CODE + 0, 
+        opcode.RCODE + 0, 
+        opcode.RCCODE + 1, 
+            opcode.CPUSH + 1,
+        opcode.JEZ + opcode.JLZ, +5,   # while n > 0
+        opcode.DEC,       # n--
+        opcode.RCODE + 1, # RCODE [1]
+        opcode.POP + 1,   # POP [1]
+        opcode.JMP, -7,  # end while 
+        opcode.POP + 0,
+        opcode.FLUSH
+    ] 
+
+class iterable:
+    GEN = [opcode.THIS, opcode.CPUSH + 1, 0]  # def gen(): return (gen, 0)
+    PUSH = tuple(2)
