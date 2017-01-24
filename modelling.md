@@ -96,7 +96,7 @@ Sometimes an unknown type needs to be consistent within a structure, but otherwi
 For this names can be used without definition within a structure.  
 
 For example, a function's code could read something like:  
-  `rcode [0], rcode cpush, rcode [0], rcode cpush, pop [0], pop [0], flush`,   
+  `rcode [0], rcode cpush, rcode [0], rcode cpush, pop [0], pop [0], flush`,  
 
 This takes two arguments and constructs a tuple/duple/pair, and would have type `(a, b)((a, b))`  
 Notice how when the symbols are not periods, asterisks, and question marks, sequences become comma separated.  
@@ -111,7 +111,7 @@ When a name is used algebraically, it must be an algebraic value, and so the typ
 The ways in which a name is used 'algebraically' will come up below.  
 
 Numerals are also defined to be algebraic values, but can only take the decimal value they represent.  
-This is because they can be used wherever pronumerals (named algebraic values) can be used.   
+This is because they can be used wherever pronumerals (named algebraic values) can be used.  
 
 Generic and Ambiguous Sequences  
 ===============================  
