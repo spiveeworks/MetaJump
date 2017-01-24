@@ -81,7 +81,7 @@ For example, the following annotation of a curry function:
 `unary: (.)(.)`  
 `curried_binary: (.)(unary)`  
 `binary_curry: (binary)(curried_binary)`  
-could also be represented directly as ((..)(.))((.)((.)(.)))  
+could also be represented directly as `((..)(.))((.)((.)(.)))`  
 
 This also opens up the possibility of recursive type definitions, such as the following:  
 `iterator: (iterator.)`  
